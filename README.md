@@ -1,2 +1,7 @@
-# mgos_mcp9808
-A library for driving MCP9808 temperature sensors from the Mongoose OS
+# A blank Mongoose OS library
+
+
+## Overview
+
+This blank library is intended to be used as a skeleton for deleloping
+Mongoose OS libraries.
