@@ -6,7 +6,7 @@ bool mgos_mcp9808_init(void) {
 }
 
 
-struct mcp9808_cfg mcp9808_init(int address, int resolution) {
+struct mcp9808_cfg mcp9808_init(uint8_t address, uint8_t resolution) {
     struct mcp9808_cfg cfg;
     // TODO - check for config -> nullptr'ness
     switch (address) {
@@ -70,11 +70,53 @@ double mcp9808_get_temp(struct mcp9808_cfg *config) {
             uint8_t up = buf[0] & 0x1f;
             uint8_t low = buf[1];
             if ((up & 0x10) == 0x10) {
-                temp = (double) (256 - 16 * up + low / 16);
+                up = up & 0x0f;
+                temp = (((double)low)/16.0 + 16.0 * up) - 256.0;
             } else {
-                temp = 16 * up + low / 16;
+                temp = (up << 4) + (low >> 4);
             }
         }
     }
     return temp;
+}
+
+bool mcp9808_set_resolution(struct mcp9808_cfg *config, uint8_t resolution) {
+    bool s = false;
+    if (config != NULL) {
+        switch (resolution) {
+            case LOW:
+                config->timing = LOWT;
+            case NORMAL:
+                config->timing = NORMALT;
+            case HIGH:
+                config->timing = HIGHT;
+            case HIGHEST:
+                config->timing = HIGHESTT;
+                s = mgos_i2c_write_reg_b(config->i2c, config->address, RESOLUTION, resolution);
+                LOG(LL_DEBUG, ("Set resolution to:  %.2x,  timing is now %d ms", resolution, config->timing));
+                break;
+            default:
+                LOG(LL_ERROR, ("Resolution:  %.2x is not valid for MCP9808 sensor.", resolution));
+                break;
+        }
+    }
+    return s;
+}
+
+//bool mgos_i2c_read(struct mgos_i2c *i2c, uint16_t addr, void *data, size_t len, bool stop);
+
+void mcp9808_get_json(struct mcp9808_cfg *config, struct json_out out) {
+
+//    struct mbuf rb;
+//    struct json_out out = JSON_OUT_MBUF(&rb);
+//
+//    {topic: 'mcp9808', payload: resolve}
+//
+//    double tc = mcp9808_get_temp( config );
+//    double tf = 1.8*tc + 32.0;
+//
+//    json_prinft(&out, "Tc")
+//
+//
+//    json_printf(&out, "%s%d", (rb.len > 1 ? ", " : ""), addr);
 }

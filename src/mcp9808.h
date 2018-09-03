@@ -60,13 +60,35 @@ struct mcp9808_cfg {
     // TODO add support for interrupts and thresholds
 };
 
-struct mcp9808_cfg mcp9808_init(int address, int resolution);
+// TODO - methods to add
+// TODO - set various configurations
+// TODO - Tupper (alert upper temp threshold)
+// TODO - Tlower (alert lower temp threshold)
+// TODO - Tcrit (alert critical temp)
+// TODO - set sensor resolution
+
+/**
+ *  Mongoose OS init hook - required.
+ *
+ * @return
+ */
+bool mgos_mcp9808_init(void);
+
+
+struct mcp9808_cfg mcp9808_init(uint8_t address, uint8_t resolution);
+
 
 double mcp9808_get_temp(struct mcp9808_cfg *config);
 
-// TODO - Set Interrupt thresholds
 
-bool mgos_mcp9808_init(void);
+bool mcp9808_set_resolution(struct mcp9808_cfg *config, uint8_t resolution);
+
+
+void mcp9808_get_json(struct mcp9808_cfg *config, struct json_out out);
+
+
+
+
 
 #ifdef __cplusplus
 }
